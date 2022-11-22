@@ -3,7 +3,26 @@ import { MerkleTree } from 'merkletreejs';
 import { ethers } from 'ethers';
 import chalk from 'chalk';
 import express from 'express';
+import cors from 'cors';
 const app = express();
+var allowedOrigins = [
+    'http://localhost:3000',
+    'https://app.bao.finance',
+    'https://bao.on.fleek.co',
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        // allow requests with no origin 
+        // (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            var msg = 'The CORS policy for this site does not allow access from the specified origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+}));
 const _keccakAbiEncode = (a, n) => ethers.utils.keccak256(ethers.utils.solidityPack(['address', 'uint256'], [a, n]));
 const snapshot = JSON.parse(fs.readFileSync(`./snapshot.json`).toString());
 const leaves = snapshot.map(account => _keccakAbiEncode(account.address, account.amount));

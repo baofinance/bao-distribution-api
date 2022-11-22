@@ -3,8 +3,27 @@ import { MerkleTree } from 'merkletreejs'
 import { ethers } from 'ethers'
 import chalk from 'chalk'
 import express, { Request, Response } from 'express'
+import cors from 'cors'
 
 const app = express()
+
+var allowedOrigins = [
+	'http://localhost:3000',
+  'https://app.bao.finance',
+  'https://bao.on.fleek.co',
+]
+app.use(cors({
+  origin: (origin: string | undefined, callback: any) => {
+    // allow requests with no origin 
+    // (like mobile apps or curl requests)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      var msg = 'The CORS policy for this site does not allow access from the specified origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}))
 
 // -------------------------------
 // MERKLE ROOT GENERATION
